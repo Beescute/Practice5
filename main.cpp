@@ -1,99 +1,79 @@
-#include <iostream>
-#include <windows.h>
+#include <iostream> 
 #include <string.h>
 #include <string>
+#include <windows.h> 
 #include <stdio.h>
-#include <fstream>
 
 using namespace std;
 
-struct Date {
-	int day;
-	int month;
-	int year;
-};
 
 class clDate {
 private:
-	Date _clDate;
+	unsigned short day;
+	unsigned short month;
+	unsigned short year;
 public:
-	//Конструктор с параметрами
-	clDate(int, int, int);
-	//Конструктор по умолчанию
-	clDate() {
-		_clDate.day = 1;
-		_clDate.month = 1;
-		_clDate.year = 1970;
-	};
-	//Конструктор копирования
-	clDate(const clDate& _copy_date) {
-		_clDate.day = _copy_date._clDate.day;
-		_clDate.month = _copy_date._clDate.month;
-		_clDate.year = _copy_date._clDate.year;
-	}
-	void setDate(int _day, int _month, int _year) {
-		_clDate.day = _day;
-		_clDate.month = _month;
-		_clDate.year = _year;
-	}
-	//Проверка добавления 5-ти дней к дате
-	bool fiveDaysPlus(clDate f_clDate) {
-		f_clDate._clDate.day += 5;
-		const int MONTHS = 12;
-		int countMonth = f_clDate._clDate.month;
-		int listMonth[MONTHS];
-		for (int i = 0; i < MONTHS; i++) {
-			listMonth[i] = i;
-		}
-		for (int i = 1; i < MONTHS; i + 2) {
-			if ((countMonth == i) && (f_clDate._clDate.day <= 31)) {
-				cout << f_clDate.getData_day() << " "\
-					<< f_clDate.getData_month() << " "\
-					<< f_clDate.getData_year() << " " << endl;
-				return true;
-			}
-			if ((countMonth != i) && (f_clDate._clDate.day <= 30)) {
-				cout << f_clDate.getData_day() << " "\
-					<< f_clDate.getData_month() << " "\
-					<< f_clDate.getData_year() << " " << endl;
-				return true;
-			}
-			if ((countMonth != i) && (f_clDate._clDate.day <= 28) && (f_clDate._clDate.year != 2024)) {
-				cout << f_clDate.getData_day() << " "\
-					<< f_clDate.getData_month() << " "\
-					<< f_clDate.getData_year() << " " << endl;
-				return true;
-			}
-			if ((countMonth != i) && (f_clDate._clDate.day <= 29) && (f_clDate._clDate.year == 2024)) {
-				cout << f_clDate.getData_day() << " "\
-					<< f_clDate.getData_month() << " "\
-					<< f_clDate.getData_year() << " " << endl;
-				return true;
-			}
-			else {
-				cout << "Неверная дата!" << endl;
-				cout << f_clDate.getData_day() - 5 << " "\
-					<< f_clDate.getData_month() << " "\
-					<< f_clDate.getData_year() << " " << endl;
-				return false;
-			}
-		}
+	clDate();
+	clDate(unsigned short, unsigned short, unsigned short);
+	clDate(const clDate&);
 
-	}
-	int getData_day() {
-		return _clDate.day;
-	}
-	int getData_month() {
-		return _clDate.month;
-	}
-	int getData_year() {
-		return _clDate.year;
-	}
+	void setDate(unsigned short day, unsigned short month, unsigned short year);
+	bool checkDate(unsigned short);
+	int checkDaysInMonth();
+	void plusFiveDays(unsigned short);
+
+	unsigned short getDate_day() { return day; }
+	unsigned short getDate_month() {return month; }
+	unsigned short getDate_year() { return year; }
 	//Деструктор
 	~clDate() {
 	}
 };
+//Конструктор по умолчанию
+clDate::clDate() {
+	day = 1;
+	month = 1;
+	year = 1970;
+};
+//Конструктор копирования
+clDate::clDate(const clDate& copy_date) {
+	this->day = copy_date.day;
+	this->month = copy_date.month;
+	this->year = copy_date.year;
+}
+clDate::clDate(unsigned short day, unsigned short month, unsigned short year) {
+	this->day = day;
+	this->month = month;
+	this->year = year;
+}
+int clDate::checkDaysInMonth() {
+	//Проверка високосного года
+	if (month == 2) {
+		if (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0)) {
+			return 29;
+		}
+		else {
+			return 28;
+		}
+	}
+	//Проверка месяцев с 30 днями
+	if (month == 4 || month == 6 || month == 9 || month == 11) {
+		return 30;
+	}
+	//Оставшиеся месяцы с 31 днем
+	return 31;
+}
 
+bool clDate::checkDate(unsigned short fiveDays) {
+	unsigned short fday = day + fiveDays;
+	return fday <= checkDaysInMonth();
+}
+
+void clDate::plusFiveDays(unsigned short fiveDays = 5) {
+	if (checkDate(fiveDays)) {
+		day += fiveDays;
+	}
+}
 
 struct Record
 {
@@ -116,22 +96,23 @@ public:
 
 	clRecord();
 	clRecord(string, string, int, float, clDate);
-	clRecord(string, char, int, float, unsigned int, unsigned int, unsigned int);
-	clRecord(Record*);
+	clRecord(string, string, int, float, unsigned short, unsigned short, unsigned short);
 	clRecord(const char*);
-	string getSurName() { return surName; }
-	string getIdent() { return ident; }
-	unsigned short getYear() { return year; }
+	clRecord(Record*);
+
+	string getSurName() {return surName;}
+	string getIdent() {return ident; }
+	int getYear() { return year; }
 	float getSalary() { return salary; }
 	clDate getDate() { return date; }
+	clRecord(const clRecord&);
+
 };
-
 clRecord::clRecord() {
-	surName = "Atavin";
-	ident = "D.A.";
-	year = 2005;
-	salary = 5088;
-
+	surName = "Surname";
+	ident = "S.S.";
+	year = 1970;
+	salary = 0;
 }
 
 clRecord::clRecord(string surName, string ident, int year, float salary, clDate date) {
@@ -141,153 +122,81 @@ clRecord::clRecord(string surName, string ident, int year, float salary, clDate 
 	this->salary = salary;
 	this->date = date;
 }
-clRecord::clRecord(string surName, char ident, int year, float salary, unsigned int day, unsigned int month, unsigned int yearD) {
+
+clRecord::clRecord(string surName, string ident, int year, float salary, unsigned short dday, unsigned short dmonth, unsigned short dyear) {
 	this->surName = surName;
 	this->ident = ident;
 	this->year = year;
 	this->salary = salary;
-	this->date = clDate(day, month, yearD);
+	this->date = clDate(dday, dmonth, dyear);
 }
-clRecord::clRecord(Record* _record) {
-	this->surName = _record->surName;
-	this->ident = _record->ident;
-	this->year = _record->year;
-	this->salary = _record->salary;
-	this->date = _record->date;
-}
-clRecord::clRecord(const char* nameFile) {
-	FILE* file;
-	char split;
-	fopen_s(&file, nameFile, "r");
-	fscanf_s(file, "%s", &this->surName, (this->surName).length());
-	fscanf_s(file, "%s", &this->ident, (this->ident).length());
-	fscanf_s(file, "%d", &this->year);
-	fscanf_s(file, "%f", &this->salary);
-	fscanf_s(file, "%d", this->date.getData_day());
-	fscanf_s(file, "%d", this->date.getData_month());
-	fscanf_s(file, "%d", this->date.getData_year());
-	fclose(file);
+
+clRecord::clRecord(Record* cRecord) {
+	this->surName = cRecord->surName;
+	this->ident = cRecord->ident;
+	this->year = cRecord->year;
+	this->salary = cRecord->salary;
+	this->date = cRecord->date;
 }
 
 
-
-char* GetSpacebar(int count) {
-	char* msg = new char[count];
-	for (int i = 0; i < count; i++)
-	{
-		msg[i] = ' ';
-	}
-	msg[count] = '\0';
-	return msg;
+clRecord::clRecord (const clRecord& cRecord) {
+	this->surName = cRecord.surName;
+	this->ident = cRecord.ident;
+	this->year = cRecord.year;
+	this->salary = cRecord.salary;
+	this->date = cRecord.date;
 }
-
-int GetSize(char* msg) {
-	int size = 0;
-	while (msg[size] != '\0')
-		size++;
-	return size;
-}
-
-
-void myCentr(string s, int wLine) {
-
-	int w = s.length();
-	int delta = (wLine - w) / 2;
-	cout << left;
-	cout.width(delta); cout << " ";
-	cout << s;
-	cout.width(delta + 1); cout << " ";
-
-}
-
-void printDate(int day, int month, int year, int wLine) {
-	int w = 10;
-	int delta = (wLine - w) / 2 - 1;
-	cout << left;
-	cout.width(delta); cout << " ";
-	if (day > 9) {
-		cout << day;
-	}
-	else {
-		cout << "0" << day;
-	}
-	cout << ".";
-	if (month > 9) {
-		cout << month;
-	}
-	else {
-		cout << "0" << month;
-	}
-	cout << ".";
-	cout << year;
-	cout.width(delta); cout << " ";
-}
-
-void Draw(struct Record* records, int num) {
-	cout << endl;	cout.width(79); cout.fill('-'); cout << "-" << endl;
-	cout.fill(' '); cout.width(78);  cout << left << "|Отдел кадров"; cout << "|" << endl;
-	cout.width(79); cout.fill('-'); cout << "-" << endl;
-	cout.fill(' ');
-	cout << left << "|"; myCentr("Фамилия", 16);
-	cout << left << "|"; myCentr("Инициалы", 11);
-	cout << left << "|"; myCentr("Год рожд", 10);
-	cout << left << "|"; myCentr("Оклад", 10);
-	cout << left << " |"; myCentr("Дата приема на работу", 24);
-	cout << "|" << endl;
-
-	cout.width(79); cout.fill('-'); cout << "-" << endl;
-	cout.fill(' ');
-
-	for (int i = 0; i < num; i++) {
-		cout << left << "|"; cout.width(16); cout << left << records[i].surName;
-		cout << left << "|"; cout.width(11); cout << left << records[i].ident;
-		cout << left << "|+"; cout.width(10); cout << left << records[i].year;
-		std::cout.precision(2);
-		cout << left << "|"; cout.width(11); cout << left << fixed << records[i].salary;
-		cout << left << "|";
-		printDate(records[i].date.getData_day(), records[i].date.getData_month(), records[i].date.getData_year(), 26);
-		cout << "|" << endl;
-	}
-	cout.width(79); cout.fill('-'); cout << "-" << endl;
-	cout.fill(' '); cout.width(78);  cout << left << "|Примечание: оклад установлен по состоянию на 1 января 2000 года"; cout << "|" << endl;
-	cout.width(79); cout.fill('-'); cout << "-" << endl;
-}
-
-
 
 int main()
 {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
+	cout << "---Практика 5: классы и объекты---" << endl;
 
-	struct Record records[3];
-	const int num = 3;
+	clRecord Record1("Static surname", "Static ident", 2000, 100.50, 07, 04, 2023);
+	class clRecord* dynamicClRecord = new clRecord;
+	delete dynamicClRecord;
 
-	records[0] = { "Иванов", "И.И.", 1975, 517.50, {01,02,2010} };
-	records[1] = { "Петренко", "П.П.", 1956, 219.10, {02,03,2020} };
-	records[2] = { "Панковский", "М.С.", 1967, 300.10, {12,12,2012} };
-
-	cout << endl << "---Практика 5: классы и объекты---" << endl;
+	class clRecord records[3];
+	records[0] = clRecord("Иванов", "И.И.", 1975, 517.50, 01, 02, 2010);
+	records[1] = clRecord("Петренко", "П.П.", 1956, 219.10, 02, 03, 2020);
+	records[2] = clRecord("Панковский", "М.С.", 1967, 300.10, 12, 12, 2012);
 	const int SIZE = 3;
 	class clDate listDates[SIZE];
-	for (int i = 0; i < SIZE; i++) {
-		listDates[i].setDate(records[i].date.getData_day(), records[i].date.getData_month(), records[i].date.getData_year());
+	cout << "Даты из классов clRecord:" << endl;
+	for (int i = 0; i < SIZE; i++){
+		listDates[i] = records[i].getDate();
 	}
-	cout << "Даты из структуры Record:" << endl;
 	for (int i = 0; i < SIZE; i++) {
-		cout << \
-			listDates[i].getData_day() << " " <<
-			listDates[i].getData_month() << " " <<
-			listDates[i].getData_year() << " " << endl;
+		cout << "Record[" << i << "]: "\
+			 << listDates[i].getDate_day() << " " \
+			 << listDates[i].getDate_month() << " " \
+			 << listDates[i].getDate_year() << endl;
 	}
+	//Конструктор по умолчанию
+	clDate date1();
+	//Конструктор с параметрами
+	clDate date2(07, 04, 2023);
+	cout << "Date2: " \
+		<< date2.getDate_day() << " " \
+		<< date2.getDate_month() << " " \
+		<< date2.getDate_year() << endl;
+	//Добавление 5ти дней 
+	date2.plusFiveDays();
+	cout << "Date2 после прибавления: " \
+		<< date2.getDate_day() << " " \
+		<< date2.getDate_month() << " " \
+		<< date2.getDate_year() << endl;
+	//Копирование даты
+	clDate date3(date2);
+	cout << "Date3: " \
+		<< date3.getDate_day() << " " \
+		<< date3.getDate_month() << " " \
+		<< date3.getDate_year() << endl;
+	//Создание динамической даты
 	class clDate* dynamicClDate = new clDate;
 	delete dynamicClDate;
 
-	//Добавление 5-ти ко дню даты и проверка 
-	clDate copied_Date;
-	clDate copy_Date = copied_Date;
-	copy_Date.setDate(26, 04, 2023);
-	if (copy_Date.fiveDaysPlus(copy_Date));
-	clRecord cl_Record("Иванов", "И.И.", 1975, 517.50, { 01,02,2010 });
 	return 0;
 }
